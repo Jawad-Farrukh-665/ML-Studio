@@ -1,24 +1,7 @@
 import customtkinter
-from PIL import Image, ImageTk, ImageDraw
-from requests_oauthlib import OAuth2Session
-import requests
-import webbrowser
-import io
-import time
-import os
-
-# CLIENT_ID = 'Ov23liCLcKLRV0o2zJQG'
-# CLIENT_ID = 'Ov23lit3QHWwDllH4khw'
-# CLIENT_SECRET = '3caeb5c818518541ff171d9bde054203c7fa9acc'
-# CLIENT_SECRET = 'b4b324c15eab1b6e0625b26df0ae7e67dbceaa8e'
-# AUTHORIZATION_BASE_URL = 'https://github.com/login/oauth/authorize'
-# TOKEN_URL = 'https://github.com/login/oauth/access_token'
-# REDIRECT_URI = 'http://127.0.0.1:8000/callback'
+from PIL import Image, ImageTk
 
 current_visible = None
-# github = None
-# token = None
-# file_path = "auth_code.txt"
 all_options = []
 
 def check_searched_entry():
@@ -43,76 +26,6 @@ def handle_search_blur_on_click_outside(event):
     if event.widget != search_entry and event.widget != internal_entry_widget:
         search_entry.focus_set()
         app.focus()
-
-# def read_auth_code():
-#     global file_path
-#     timeout = 10
-#     interval = 1
-#     waited_time = 0
-#     while waited_time < timeout:
-#         if(os.path.exists(file_path)):
-#             with open(file_path, "r") as file:
-#                 auth_code = file.read().strip()
-#                 return auth_code
-#         else:
-#             time.sleep(1)
-#             waited_time += interval
-#     return {"error": "Authorization code file not found."}, 404
-        
-# def get_circular_image(image_path):
-#     image = Image.open(io.BytesIO(image_path.content))
-#     image = image.resize((65,65))
-#     mask = Image.new('L', (65,65), 0)
-#     draw = ImageDraw.Draw(mask)
-#     draw.ellipse((0, 0, 65, 65), fill=255)
-#     image.putalpha(mask)
-#     return image
-
-# def github_login():
-#     global github, token
-#     github = OAuth2Session(CLIENT_ID, redirect_uri=REDIRECT_URI)
-#     authorization_url, state = github.authorization_url(AUTHORIZATION_BASE_URL)
-#     webbrowser.open(authorization_url)
-#     code = read_auth_code()
-#     if os.path.exists(file_path):
-#         os.remove(file_path)
-#     token = github.fetch_token(TOKEN_URL, client_secret=CLIENT_SECRET, code=code)
-#     response = github.get('https://api.github.com/user')
-#     user_info = response.json()
-#     user_name = user_info.get('name')
-#     profile_picture_url = user_info.get('avatar_url')
-#     print("Username: ",user_name)
-#     img_response = requests.get(profile_picture_url)
-#     if user_name is not None and profile_picture_url is not None:
-#         image = get_circular_image(img_response)
-#         image = ImageTk.PhotoImage(image)
-#         login_button.grid_forget()
-#         signup_button.grid_forget()
-#         login_frame.columnconfigure(1, weight=1)
-#         login_frame.columnconfigure(0, weight=0)
-#         login_frame.rowconfigure((0,1), weight=1)
-#         profile_image = customtkinter.CTkLabel(login_frame, image=image, text="")
-#         profile_image.grid(row=0, column=0, pady=(0, 5), sticky='we')
-#         user_name_label = customtkinter.CTkLabel(login_frame, text=user_name, text_color='#16423C')
-#         user_name_label.grid(row=1, column=0, sticky='we')
-        
-# def login_options():
-#     login_window = customtkinter.CTkToplevel(app)
-#     login_window.title("Login Options")
-#     login_window.geometry("500x500")
-#     login_window.columnconfigure(0, weight=1)
-#     login_window.attributes("-topmost", True)
-#     login_window.configure(fg_color = "#E9EFEC")
-    
-#     label = customtkinter.CTkLabel(login_window, text="Making Machine Learning Easy", text_color="#16423C", font=("Arial", 20))
-#     label.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
-
-#     github_icon = customtkinter.CTkImage(Image.open("github-mark-white.png"), size=(20, 20))
-#     github_login_button = customtkinter.CTkButton(login_window, text="Login With Github", image=github_icon, compound="left", command=github_login, fg_color="#16423C", font=("Arial", 16))
-#     github_login_button.bind("<Enter>", lambda event: on_hover("#0D2E29", "#E9EFEC", github_login_button))
-#     github_login_button.bind("<Leave>", lambda event: on_leave("#16423C", "#E9EFEC", github_login_button))
-#     github_login_button.grid(row=1, column=0, padx=10, pady=5)
-
 
 def on_hover(foreground, text, button):
     button.configure(text_color=text)
@@ -150,16 +63,6 @@ def adjust_button_positions(button_row_dict):
         else:
             start_row += 1
 
-
-
-# def padding_adjustment(event):
-#     current_width = app.winfo_width()
-#     current_height = app.winfo_height()
-#     if(current_height > 400 and current_width > 1000):
-#         prediction_label.grid_configure(pady=(48 , 0))
-#     else:
-#         prediction_label.grid_configure(pady=(8,0))
-
 app = customtkinter.CTk()
 screen_height = app.winfo_height()
 app.geometry("1000x{screen_height}")
@@ -191,18 +94,6 @@ get_started_label.grid(row=0, column=1, padx=20)
 help_label = customtkinter.CTkLabel(option_frame, text="Help", text_color="#16423C", font=("Arial", 20))
 help_label.grid(row=0, column=2, padx=20)
 option_frame.grid(row=0, column=1, padx=50, sticky="we")
-
-# login_frame = customtkinter.CTkFrame(app, fg_color="#E9EFEC")
-# login_frame.columnconfigure((0,1), weight=1)
-# login_button = customtkinter.CTkButton(login_frame, text="Login", fg_color="#16423C", font=("Arial", 20), command=login_options)
-# login_button.grid(row=0,column=1)
-# login_button.bind("<Enter>", lambda event: on_hover("#E9EFEC", "#16423C", login_button))
-# login_button.bind("<Leave>", lambda event: on_leave("#16423C", "#E9EFEC", login_button))
-# signup_button = customtkinter.CTkButton(login_frame, text="Signup", fg_color="#E9EFEC", text_color="#16423C", font=("Arial", 20))
-# signup_button.grid(row=0, column=0)
-# signup_button.bind("<Enter>", lambda event: on_hover("#16423C", "#E9EFEC", signup_button))
-# signup_button.bind("<Leave>", lambda event: on_leave("#E9EFEC", "#16423C", signup_button))
-# login_frame.grid(row=0, column=2, sticky="e", padx=30)
 
 language_frame = customtkinter.CTkFrame(app, fg_color="#E9EFEC")
 
