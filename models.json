@@ -1,0 +1,18 @@
+{
+    "models": {
+        "english": {
+            "linearDiscrimantAnalysis": "Linear Discriminant Analysis",
+            "linearDiscrimantAnalysis2": "Linear Discriminant Analysis",
+            "linearDiscrimantAnalysis3": "Linear Discriminant Analysis",
+            "linearDiscrimantAnalysis4": "Linear Discriminant Analysis",
+            "linearDiscrimantAnalysis5": "Linear Discriminant Analysis"
+        },
+        "spanish" : {
+            "linearDiscrimantAnalysis": "Linear Discriminant Analysis - ES",
+            "linearDiscrimantAnalysis2": "Linear Discriminant Analysis - ES",
+            "linearDiscrimantAnalysis3": "Linear Discriminant Analysis - ES",
+            "linearDiscrimantAnalysis4": "Linear Discriminant Analysis - ES",
+            "linearDiscrimantAnalysis5": "Linear Discriminant Analysis - ES"
+        }
+    }
+}
