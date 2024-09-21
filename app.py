@@ -1,8 +1,12 @@
 import customtkinter
 from PIL import Image, ImageTk
+from options import dropdown_options
 
 current_visible = None
 all_options = []
+
+def selectLanguage(language):
+    language_menu.set(language)
 
 def check_searched_entry():
     global all_options
@@ -96,7 +100,11 @@ help_label.grid(row=0, column=2, padx=20)
 option_frame.grid(row=0, column=1, padx=50, sticky="we")
 
 language_frame = customtkinter.CTkFrame(app, fg_color="#E9EFEC")
+language_frame.columnconfigure(0, weight=1)
 
+language_menu = customtkinter.CTkOptionMenu(language_frame, values=dropdown_options['languages'], command=selectLanguage, fg_color="#16423C", button_color="#16423C", button_hover_color="#16423C", dropdown_fg_color="#E9EFEC", dropdown_text_color="#16423C", dropdown_hover_color="#B8BFBC")
+language_menu.grid(column=0, sticky="w")
+language_frame.grid(row=0, column=2, sticky="we")
 
 
 #  ________  
