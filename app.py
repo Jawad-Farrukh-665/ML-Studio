@@ -1,7 +1,8 @@
 import customtkinter
 from PIL import Image, ImageTk
 from options import dropdown_options
-
+from Components.Linear_Regression_Window import linear_regression_window
+    
 current_visible = None
 all_options = []
 
@@ -120,7 +121,7 @@ search_frame.columnconfigure((0,1), weight=1)
 
 search_entry = customtkinter.CTkEntry(search_frame, placeholder_text="Search...", fg_color="#E9EFEC", text_color="#16423C", corner_radius=30, width=200)
 search_entry.grid(row=0, column=0, sticky='we', padx=(0,5))
-search_button = customtkinter.CTkButton(search_frame, text="Search", fg_color='#16423C', text_color="#E9EFEC", width= 100, command=check_searched_entry)
+search_button = customtkinter.CTkButton(search_frame, text="Search", fg_color='#16423C', text_color="#E9EFEC", width= 100, command=check_searched_entry, hover_color="#0E2F2B")
 search_button.grid(row=0, column=1, sticky="we")
 
 search_frame.grid(row=1, column=0, sticky='ns')
@@ -128,7 +129,7 @@ search_frame.grid(row=1, column=0, sticky='ns')
 
 sidebar_frame = customtkinter.CTkScrollableFrame(app, fg_color="#CCD3D0", width=285)
 prediction_options = [
-    customtkinter.CTkButton(sidebar_frame, text="Linear Regression", fg_color="#CCD3D0", text_color='#16423C', font=("Arial", 14)),
+    customtkinter.CTkButton(sidebar_frame, text="Linear Regression", fg_color="#CCD3D0", text_color='#16423C', font=("Arial", 14), command=linear_regression_window),
     customtkinter.CTkButton(sidebar_frame, text="Logistic Regression", fg_color="#CCD3D0", text_color='#16423C', font=("Arial", 14)),
     customtkinter.CTkButton(sidebar_frame, text="Support Vector Machines", fg_color="#CCD3D0", text_color='#16423C', font=("Arial", 14)),
     customtkinter.CTkButton(sidebar_frame, text="Decision Trees", fg_color="#CCD3D0", text_color='#16423C', font=("Arial", 14)),
@@ -245,7 +246,10 @@ button_row_dict = {
 
 adjust_button_positions(button_row_dict)
 
+main_frame = customtkinter.CTkFrame(app, fg_color="#CCD3D0")
+main_frame.columnconfigure(0, weight=1)
 
+main_frame.grid(column=1, row=2, sticky="wens", columnspan=2, padx= (0,20))
 
 # app.bind("<Configure>", padding_adjustment)
 app.bind("<Button-1>", handle_search_blur_on_click_outside)
