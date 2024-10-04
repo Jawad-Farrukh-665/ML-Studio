@@ -7,6 +7,14 @@ filename = None
 columns = []
 is_dropdown_visible = False
 
+def perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors):
+    props = {
+        "file_path": selected_dataset_field.get(),
+        "type": selected_type.get(),
+        "target": target_dropdown.get(),
+        "predictors": predictors,
+    }
+
 def close_window(LR_Window):
     LR_Window.destroy()
 
@@ -48,7 +56,7 @@ def handle_search_blur_on_click_outside(event, entries, LR_window):
 def update_radio_buttons(radio_button):
     radio_button.configure(fg_color="#16423C")
 
-def browse_file(entry, dropdown, dropdown_frame):
+def browse_file(entry, dropdown, dropdown_frame , predictors):
     global filename, columns
     filename = filedialog.askopenfilename()
     entry.delete(0, customtkinter.END)
@@ -58,23 +66,24 @@ def browse_file(entry, dropdown, dropdown_frame):
     columns = column_separation(filename)  
     dropdown.configure(values=columns)
     columns = [column for column in columns if column != selected_option]
-    update_predictors(dropdown_frame)
-    dropdown.configure(command=lambda selected_value: update_columns(selected_value, dropdown_frame))
+    update_predictors(dropdown_frame , predictors)
+    dropdown.configure(command=lambda selected_value: update_columns(selected_value, dropdown_frame , predictors))
 
-def update_columns(selected_value, dropdown_frame):
+def update_columns(selected_value, dropdown_frame , predictors):
     global columns
     if selected_value:
         columns = [column for column in column_separation(filename) if column != selected_value]
-    update_predictors(dropdown_frame)
+    update_predictors(dropdown_frame , predictors)
 
-def update_predictors(dropdown_frame):
+def update_predictors(dropdown_frame , predictors):
     for widget in dropdown_frame.winfo_children():
         widget.destroy()
     global options_vars
     options_vars = {option: BooleanVar(value=False) for option in columns}
     for i, (option, var) in enumerate(options_vars.items()):
-        checkbox = customtkinter.CTkCheckBox(dropdown_frame, text=option, variable=var, command=lambda: update_selection(options_vars), text_color="#16423C")
+        checkbox = customtkinter.CTkCheckBox(dropdown_frame, text=option, variable=var, command=lambda: update_selection(options_vars, predictors), text_color="#16423C")
         checkbox.grid(column=0, row=i, sticky='w')
+    print("Predictors: ", predictors)
 
 def toggle_dropdown(dropdown_frame):
     global is_dropdown_visible
@@ -86,8 +95,10 @@ def toggle_dropdown(dropdown_frame):
         dropdown_frame.tkraise()
         is_dropdown_visible = True
     
-def update_selection(options_vars):
+def update_selection(options_vars, predictors):
     selected_values = [option for option, var in options_vars.items() if var.get()]
+    predictors.clear()
+    predictors.extend(selected_values)
     
 def linear_regression_window():
     global columns
@@ -103,6 +114,7 @@ def linear_regression_window():
     selected_type = customtkinter.StringVar(value="None")
     linear_regression_color = customtkinter.StringVar(value="#0000FF")
     original_data_color = customtkinter.StringVar(value="#FF0000")
+    predictors = []
     
     uploading_frame = customtkinter.CTkFrame(LR_window, fg_color="#E9EFEC")
     uploading_frame.columnconfigure((0,1), weight=1)
@@ -110,7 +122,7 @@ def linear_regression_window():
     selected_dataset_field = customtkinter.CTkEntry(uploading_frame, width=320, fg_color="#E9EFEC", text_color='#16423C', placeholder_text_color="#4D6F6B", placeholder_text="Selected Dataset...")
     selected_dataset_field.grid(column=0, row=0, sticky='we', padx=(20,0))
     upload_icon = customtkinter.CTkImage(Image.open("Upload.png"), size=(15,15))
-    upload_dataset_button = customtkinter.CTkButton(uploading_frame, fg_color="#16423C", text="Upload ", font=("Arial", 15), image=upload_icon, compound="left", command=lambda: browse_file(selected_dataset_field, target_dropdown, dropdown_frame), hover_color="#0E2F2B")
+    upload_dataset_button = customtkinter.CTkButton(uploading_frame, fg_color="#16423C", text="Upload ", font=("Arial", 15), image=upload_icon, compound="left", command=lambda: browse_file(selected_dataset_field, target_dropdown, dropdown_frame, predictors), hover_color="#0E2F2B")
     upload_dataset_button.grid(column=1, row=0, sticky='w', padx=(5,0))
     
     uploading_frame.grid(row=0, column=0, columnspan=2)
@@ -140,11 +152,11 @@ def linear_regression_window():
     predictor_frame = customtkinter.CTkFrame(LR_window, fg_color="#E9EFEC")
     predictor_frame.columnconfigure((0,1), weight=1)
     
-    customize_predictors_button = customtkinter.CTkButton(predictor_frame, fg_color="#16423C", text="Customize Predictors", text_color="#E9EFEC", hover_color="#0E2F2B", command=lambda: update_selection(options_vars))
+    customize_predictors_button = customtkinter.CTkButton(predictor_frame, fg_color="#16423C", text="Customize Predictors", text_color="#E9EFEC", hover_color="#0E2F2B", command=lambda: update_selection(options_vars , predictors))
     customize_predictors_button.grid(column=0, row=0, sticky='e')
     dropdown_frame = customtkinter.CTkScrollableFrame(predictor_frame, fg_color="#E9EFEC", height=100)
     dropdown_frame.columnconfigure((0,1), weight=1)
-    update_predictors(dropdown_frame)
+    update_predictors(dropdown_frame , predictors)
     customize_predictors_button.configure(command=lambda: toggle_dropdown(dropdown_frame))
     predictor_frame.grid(column=1, row=3, padx=30)
     
@@ -223,7 +235,7 @@ def linear_regression_window():
     cancel_button = customtkinter.CTkButton(next_step_frame, fg_color="#E9EFEC", text_color="#16423C", text="Cancel", font=("Ariel", 16), hover=False, command=lambda: close_window(LR_Window=LR_window), border_width=2, border_color="#16423C")
     cancel_button.grid(column=0, row=0, sticky='w', padx=30)
     
-    continue_button = customtkinter.CTkButton(next_step_frame, fg_color="#16423C", text_color="#E9EFEC", text="Continue", font=("Ariel", 16), hover=False)
+    continue_button = customtkinter.CTkButton(next_step_frame, fg_color="#16423C", text_color="#E9EFEC", text="Continue", font=("Ariel", 16), hover=False, command=lambda: perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors))
     continue_button.grid(column=1, row=0, sticky='e', padx=30)
     
     next_step_frame.grid(column=0, columnspan=2, row=8, sticky='we')
