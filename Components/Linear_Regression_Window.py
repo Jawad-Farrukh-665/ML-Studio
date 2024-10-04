@@ -14,8 +14,6 @@ def perform_linear_regression(selected_dataset_field, selected_type, target_drop
         "target": target_dropdown.get(),
         "predictors": predictors,
     }
-    
-    print(props)
 
 def close_window(LR_Window):
     LR_Window.destroy()
