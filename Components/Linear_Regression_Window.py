@@ -7,13 +7,33 @@ filename = None
 columns = []
 is_dropdown_visible = False
 
-def perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors):
+def update_dropdowns(target_dropdown , predictor_dropdown, predictors):
+    global columns
+    if len(predictors) != 0:
+        predictors.pop(0)
+    target_selected = target_dropdown.get()
+    predictor_selected = predictor_dropdown.get()
+    target_options = [option for option in columns if option != predictor_selected]
+    predictor_options = [option for option in columns if option != target_selected]
+    target_dropdown.configure(values = target_options)
+    predictor_dropdown.configure(values = predictor_options)
+    predictors.append(predictor_selected)
+
+def perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors, original_data, gradient_descent, learning_rate, linear_regression_color, original_data_color):
     props = {
-        "file_path": selected_dataset_field.get(),
+        "filePath": selected_dataset_field.get(),
         "type": selected_type.get(),
         "target": target_dropdown.get(),
         "predictors": predictors,
+        "originalData": original_data.get(), 
+        "gradientDescent": gradient_descent.get(),
+        "learningRate": learning_rate.get(),
+        "linearRegressionColor": linear_regression_color.get(),
+        "originalDataColor": original_data_color.get()
     }
+    if props["target"] in props["predictors"]:
+        print("Error")
+    print(props)
 
 def close_window(LR_Window):
     LR_Window.destroy()
@@ -53,7 +73,20 @@ def handle_search_blur_on_click_outside(event, entries, LR_window):
         entry.focus_set()
         LR_window.focus()
 
-def update_radio_buttons(radio_button):
+def update_radio_buttons(radio_button, dropdown_frame, customize_predictors_button, predictor_dropdown, target_dropdown, predictors):
+    global columns
+    if radio_button.cget("value") == 1 or radio_button.cget("value") == 3:
+        selected_value = target_dropdown.get()
+        if selected_value:
+            columns = [column for column in column_separation(filename) if column != selected_value]
+        dropdown_frame.grid_remove()
+        customize_predictors_button.grid_remove()
+        predictor_dropdown.configure(values=columns)
+        predictor_dropdown.grid(row = 0, column=0, columnspan=2, sticky='we')
+        update_dropdowns(target_dropdown, predictor_dropdown, predictors)
+    else:
+        predictor_dropdown.grid_remove()
+        customize_predictors_button.grid(column=0, row=0, sticky='e')
     radio_button.configure(fg_color="#16423C")
 
 def browse_file(entry, dropdown, dropdown_frame , predictors):
@@ -83,7 +116,6 @@ def update_predictors(dropdown_frame , predictors):
     for i, (option, var) in enumerate(options_vars.items()):
         checkbox = customtkinter.CTkCheckBox(dropdown_frame, text=option, variable=var, command=lambda: update_selection(options_vars, predictors), text_color="#16423C")
         checkbox.grid(column=0, row=i, sticky='w')
-    print("Predictors: ", predictors)
 
 def toggle_dropdown(dropdown_frame):
     global is_dropdown_visible
@@ -132,25 +164,28 @@ def linear_regression_window():
     
     types_frame = customtkinter.CTkFrame(LR_window, fg_color="#E9EFEC")
     types_frame.columnconfigure((0,1,2), weight=1)
-    type1_radiobutton = customtkinter.CTkRadioButton(types_frame, fg_color="#E9EFEC", text_color="#16423C", hover=False, text="Simple Linear Regression", border_color="#16423C", variable=selected_type, value=1, command=lambda: update_radio_buttons(type1_radiobutton), border_width_unchecked=2, border_width_checked=5)
+    type1_radiobutton = customtkinter.CTkRadioButton(types_frame, fg_color="#E9EFEC", text_color="#16423C", hover=False, text="Simple Linear Regression", border_color="#16423C", variable=selected_type, value=1, command=lambda: update_radio_buttons(type1_radiobutton, dropdown_frame, customize_predictors_button, predictor_dropdown, target_dropdown, predictors), border_width_unchecked=2, border_width_checked=5)
     type1_radiobutton.grid(column=0, row=0)
-    type2_radiobutton = customtkinter.CTkRadioButton(types_frame, fg_color="#E9EFEC", text_color="#16423C", hover=False, text="Multiple Linear Regression", border_color="#16423C", variable=selected_type, value=2, command=lambda: update_radio_buttons(type2_radiobutton), border_width_unchecked=2, border_width_checked=5)
+    type2_radiobutton = customtkinter.CTkRadioButton(types_frame, fg_color="#E9EFEC", text_color="#16423C", hover=False, text="Multiple Linear Regression", border_color="#16423C", variable=selected_type, value=2, command=lambda: update_radio_buttons(type2_radiobutton, dropdown_frame, customize_predictors_button, predictor_dropdown, target_dropdown, predictors), border_width_unchecked=2, border_width_checked=5)
+    type3_radiobutton = customtkinter.CTkRadioButton(types_frame, fg_color="#E9EFEC", text_color="#16423C", hover=False, text="Multivariate Linear Regression", border_color="#16423C", variable=selected_type, value=3, command=lambda: update_radio_buttons(type3_radiobutton, dropdown_frame, customize_predictors_button, predictor_dropdown, target_dropdown, predictors), border_width_unchecked=2, border_width_checked=5)
     type2_radiobutton.grid(column=1, row=0)
-    type3_radiobutton = customtkinter.CTkRadioButton(types_frame, fg_color="#E9EFEC", text_color="#16423C", hover=False, text="Multivariate Linear Regression", border_color="#16423C", variable=selected_type, value=3, command=lambda: update_radio_buttons(type3_radiobutton), border_width_unchecked=2, border_width_checked=5)
     type3_radiobutton.grid(column=2, row=0)
     types_frame.grid(column=0, sticky="we", row=2, columnspan=2)
     
     target_frame = customtkinter.CTkFrame(LR_window, fg_color="#E9EFEC")
-    target_frame.rowconfigure((0,1), weight=1)
+    target_frame.columnconfigure((0,1), weight=1)
     
     target_dropdown = customtkinter.CTkOptionMenu(target_frame, width=210, fg_color="#16423C", button_color="#16423C", button_hover_color="#16423C", dropdown_fg_color="#E9EFEC", dropdown_text_color="#16423C", dropdown_hover_color="#B8BFBC", values=[])
     target_dropdown.set("Select A Target Variable")
-    target_dropdown.grid(column=0, row=0, sticky="snew", padx=30, pady=10)
+    target_dropdown.grid(column=0, row=0, padx=30, pady=10)
     
     target_frame.grid(column=0, row=3, sticky="we")
     
     predictor_frame = customtkinter.CTkFrame(LR_window, fg_color="#E9EFEC")
     predictor_frame.columnconfigure((0,1), weight=1)
+    
+    predictor_dropdown = customtkinter.CTkOptionMenu(predictor_frame, width=210, fg_color="#16423C", button_color="#16423C", button_hover_color="#16423C", dropdown_fg_color="#E9EFEC", dropdown_text_color="#16423C", dropdown_hover_color="#B8BFBC", values=[], command=lambda selected_value: update_dropdowns(target_dropdown, predictor_dropdown, predictors))
+    predictor_dropdown.set("Select A Predictor Variable")
     
     customize_predictors_button = customtkinter.CTkButton(predictor_frame, fg_color="#16423C", text="Customize Predictors", text_color="#E9EFEC", hover_color="#0E2F2B", command=lambda: update_selection(options_vars , predictors))
     customize_predictors_button.grid(column=0, row=0, sticky='e')
@@ -235,7 +270,7 @@ def linear_regression_window():
     cancel_button = customtkinter.CTkButton(next_step_frame, fg_color="#E9EFEC", text_color="#16423C", text="Cancel", font=("Ariel", 16), hover=False, command=lambda: close_window(LR_Window=LR_window), border_width=2, border_color="#16423C")
     cancel_button.grid(column=0, row=0, sticky='w', padx=30)
     
-    continue_button = customtkinter.CTkButton(next_step_frame, fg_color="#16423C", text_color="#E9EFEC", text="Continue", font=("Ariel", 16), hover=False, command=lambda: perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors))
+    continue_button = customtkinter.CTkButton(next_step_frame, fg_color="#16423C", text_color="#E9EFEC", text="Continue", font=("Ariel", 16), hover=False, command=lambda: perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors, original_data_checkbox, gradient_descent_checkbox, learning_rate, linear_regression_color_entry, original_color_entry))
     continue_button.grid(column=1, row=0, sticky='e', padx=30)
     
     next_step_frame.grid(column=0, columnspan=2, row=8, sticky='we')
