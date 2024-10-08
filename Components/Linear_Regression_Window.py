@@ -21,15 +21,15 @@ def update_dropdowns(target_dropdown , predictor_dropdown, predictors):
 
 def perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors, original_data, gradient_descent, learning_rate, linear_regression_color, original_data_color):
     props = {
-        "filePath": selected_dataset_field.get(),
+        "file_path": selected_dataset_field.get(),
         "type": selected_type.get(),
         "target": target_dropdown.get(),
         "predictors": predictors,
-        "originalData": original_data.get(), 
-        "gradientDescent": gradient_descent.get(),
-        "learningRate": learning_rate.get(),
-        "linearRegressionColor": linear_regression_color.get(),
-        "originalDataColor": original_data_color.get()
+        "original_data": original_data.get(), 
+        "gradient_descent": gradient_descent.get(),
+        "learning_rate": learning_rate.get(),
+        "linear-regression_color": linear_regression_color.get(),
+        "original_data_color": original_data_color.get()
     }
     if props["target"] in props["predictors"]:
         print("Error")
