@@ -19,7 +19,7 @@ def update_dropdowns(target_dropdown , predictor_dropdown, predictors):
     predictor_dropdown.configure(values = predictor_options)
     predictors.append(predictor_selected)
 
-def perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors, original_data, gradient_descent, learning_rate, linear_regression_color, original_data_color):
+def perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors, original_data, gradient_descent, learning_rate, linear_regression_color, original_data_color, number_of_iterations):
     props = {
         "file_path": selected_dataset_field.get(),
         "type": selected_type.get(),
@@ -27,9 +27,10 @@ def perform_linear_regression(selected_dataset_field, selected_type, target_drop
         "predictors": predictors,
         "original_data": original_data.get(), 
         "gradient_descent": gradient_descent.get(),
-        "learning_rate": learning_rate.get(),
+        "learning_rate": float(learning_rate.get()),
         "linear-regression_color": linear_regression_color.get(),
-        "original_data_color": original_data_color.get()
+        "original_data_color": original_data_color.get(),
+        "iterations": int(number_of_iterations.get())
     }
     if props["target"] in props["predictors"]:
         print("Error")
@@ -45,13 +46,17 @@ def open_color_chooser(selected_color, entry):
         entry.delete(0, customtkinter.END)
         entry.insert(0, selected_color.get())
 
-def learning_rate_toggle(gradient_descesnt_value, learning_rate_entry):
+def learning_rate_toggle(gradient_descesnt_value, learning_rate_entry, iteration_entry):
     if gradient_descesnt_value.get() == 1:
-        learning_rate_entry.configure(state = "normal",  placeholder_text="Enter Learning Rate...")
+        learning_rate_entry.configure(state = "normal",  placeholder_text="Learning Rate...")
+        iteration_entry.configure(state="normal", placeholder_text="Iterations...")
     else:
         learning_rate_entry.delete(0, customtkinter.END)
         learning_rate_entry.configure( placeholder_text="",)
         learning_rate_entry.configure(state = "disabled")
+        iteration_entry.delete(0, customtkinter.END)
+        iteration_entry.configure(placeholder_text="")
+        iteration_entry.configure(state="disabled")
         
 def original_color_toggle(original_data_value, original_color_entry, button):
     if original_data_value.get() == 1:
@@ -136,7 +141,7 @@ def linear_regression_window():
     global columns
     LR_window = customtkinter.CTkToplevel()
     LR_window.title("Linear Regression")
-    LR_window.geometry("700x700")
+    LR_window.geometry("850x650")
     LR_window.resizable(False, False)
     LR_window.columnconfigure((0,1), weight=1)
     LR_window.rowconfigure((0,1,2,3,4,5,6,7,8), weight=1)
@@ -196,12 +201,12 @@ def linear_regression_window():
     predictor_frame.grid(column=1, row=3, padx=30)
     
     advance_linear_regression_options_frame = customtkinter.CTkFrame(LR_window, fg_color="#E9EFEC")
-    advance_linear_regression_options_frame.columnconfigure((0,1,2), weight=1)
+    advance_linear_regression_options_frame.columnconfigure((0,1,2,3), weight=1)
     
     original_data_checkbox = customtkinter.CTkCheckBox(advance_linear_regression_options_frame, fg_color="#16423C", checkmark_color="#E9EFEC", hover=False, text="Show Original Data", text_color="#16423C", border_color="#16423C", command=lambda: original_color_toggle(original_data_checkbox, original_color_entry, original_color_picker), onvalue=1, offvalue=0)
     original_data_checkbox.grid(column=0, row=0)
     
-    gradient_descent_checkbox = customtkinter.CTkCheckBox(advance_linear_regression_options_frame, fg_color="#16423C", checkmark_color="#E9EFEC", hover=False, text="Gradient Descent", text_color="#16423C", border_color="#16423C", command=lambda: learning_rate_toggle(gradient_descent_checkbox, learning_rate), onvalue=1, offvalue=0)
+    gradient_descent_checkbox = customtkinter.CTkCheckBox(advance_linear_regression_options_frame, fg_color="#16423C", checkmark_color="#E9EFEC", hover=False, text="Gradient Descent", text_color="#16423C", border_color="#16423C", command=lambda: learning_rate_toggle(gradient_descent_checkbox, learning_rate, number_of_iterations), onvalue=1, offvalue=0)
     gradient_descent_checkbox.grid(column=1, row=0)
     
     learning_rate_frame = customtkinter.CTkFrame(advance_linear_regression_options_frame, fg_color="#E9EFEC")
@@ -213,6 +218,16 @@ def linear_regression_window():
     learning_rate.grid(column=1, row=0, sticky='w')
     
     learning_rate_frame.grid(column=2, row = 0)
+    
+    number_of_iterations_frame = customtkinter.CTkFrame(advance_linear_regression_options_frame, fg_color="#E9EFEC")
+    number_of_iterations_frame.columnconfigure((0,1), weight = 1)
+    
+    number_of_iterations_label = customtkinter.CTkLabel(number_of_iterations_frame, text="Iterations: ", fg_color="#E9EFEC", text_color="#16423C")
+    number_of_iterations_label.grid(column=0, sticky='e', row=0)
+    number_of_iterations = customtkinter.CTkEntry(number_of_iterations_frame, text_color="#16423C", placeholder_text_color="#1A4F43", fg_color="#E9EFEC", state="disabled")
+    number_of_iterations.grid(column=1, row=0, sticky='w')
+    
+    number_of_iterations_frame.grid(column=3, row = 0)
     
     advance_linear_regression_options_frame.grid(column=0, row=4, columnspan=2, sticky="we")
     
@@ -270,12 +285,12 @@ def linear_regression_window():
     cancel_button = customtkinter.CTkButton(next_step_frame, fg_color="#E9EFEC", text_color="#16423C", text="Cancel", font=("Ariel", 16), hover=False, command=lambda: close_window(LR_Window=LR_window), border_width=2, border_color="#16423C")
     cancel_button.grid(column=0, row=0, sticky='w', padx=30)
     
-    continue_button = customtkinter.CTkButton(next_step_frame, fg_color="#16423C", text_color="#E9EFEC", text="Continue", font=("Ariel", 16), hover=False, command=lambda: perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors, original_data_checkbox, gradient_descent_checkbox, learning_rate, linear_regression_color_entry, original_color_entry))
+    continue_button = customtkinter.CTkButton(next_step_frame, fg_color="#16423C", text_color="#E9EFEC", text="Continue", font=("Ariel", 16), hover=False, command=lambda: perform_linear_regression(selected_dataset_field, selected_type, target_dropdown, predictors, original_data_checkbox, gradient_descent_checkbox, learning_rate, linear_regression_color_entry, original_color_entry, number_of_iterations))
     continue_button.grid(column=1, row=0, sticky='e', padx=30)
     
     next_step_frame.grid(column=0, columnspan=2, row=8, sticky='we')
     
-    entries = [linear_regression_color_entry._entry, learning_rate._entry, original_color_entry._entry]
+    entries = [linear_regression_color_entry._entry, learning_rate._entry, original_color_entry._entry, number_of_iterations._entry]
     
     LR_window.bind("<Button-1>", lambda event: handle_search_blur_on_click_outside(event, entries, LR_window))
     
